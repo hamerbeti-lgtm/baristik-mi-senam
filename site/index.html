@@ -1,141 +1,123 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8" />
-  <title>Barıştık mı?</title>
-  <style>
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: Arial, Helvetica, sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      background: #fff0f5;
-      overflow: hidden;
-    }
-    .container {
-      text-align: center;
-      width: 100%;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      gap: 30px;
-    }
-    h1 { font-size: 2.5rem; }
-    .buttons { display: flex; gap: 20px; }
-    button {
-      font-size: 1.2rem;
-      padding: 20px 40px;
-      border: none;
-      border-radius: 12px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-    .yes { background: #4CAF50; color: white; }
-    .no { background: #f44336; color: white; position: relative; }
-    .fullscreen-yes {
-      width: 100vw !important;
-      height: 100vh !important;
-      font-size: 3rem !important;
-      border-radius: 0 !important;
-    }
-    .heart {
-      position: absolute;
-      color: pink;
-      font-size: 24px;
-      animation: floatUp 4s linear forwards;
-    }
-    @keyframes floatUp {
-      from { transform: translateY(0); opacity: 1; }
-      to { transform: translateY(-100vh); opacity: 0; }
-    }
-    .shake {
-      animation: shake 0.4s;
-    }
-    @keyframes shake {
-      0% { transform: translateX(0); }
-      25% { transform: translateX(-5px); }
-      50% { transform: translateX(5px); }
-      75% { transform: translateX(-5px); }
-      100% { transform: translateX(0); }
-    }
-  </style>
+<meta charset="UTF-8">
+<title>Barıştık mı?</title>
+
+<style>
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  height: 100vh;
+  background: linear-gradient(135deg, #ffd6e8, #fff0f5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Comic Sans MS', cursive;
+  overflow: hidden;
+}
+
+.container {
+  text-align: center;
+}
+
+h1 {
+  font-size: 3rem;
+  color: #ff4d88;
+}
+
+.buttons {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  margin-top: 30px;
+}
+
+button {
+  font-size: 1.5rem;
+  padding: 20px 40px;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+#yes {
+  background: #ff4d88;
+  color: white;
+}
+
+#no {
+  background: #aaa;
+  color: white;
+  position: absolute;
+}
+
+.heart {
+  position: fixed;
+  font-size: 24px;
+  animation: float 4s linear forwards;
+}
+
+@keyframes float {
+  from { transform: translateY(0); opacity: 1; }
+  to { transform: translateY(-600px); opacity: 0; }
+}
+</style>
 </head>
+
 <body>
-  <div class="container" id="app"></div>
 
-  <script>
-    let noCount = 0;
-    const texts = [
-      'Emin misin?',
-      'Bak son şansın 😏',
-      'Cidden mi?',
-      'Kalbimi kırıyorsun 💔'
-    ];
+<audio id="music" src="https://www.soundjay.com/human/kiss-01.mp3"></audio>
 
-    function vibrate() {
-      if (navigator.vibrate) navigator.vibrate(100);
-    }
+<div class="container">
+  <h1 id="question">Barıştık mı?</h1>
 
-    function startPage() {
-      app.innerHTML = `
-        <h1>Barıştık mı?</h1>
-        <div class="buttons">
-          <button class="yes" onclick="yesPage()">Evet</button>
-          <button class="no" onclick="noPage(this)">Hayır</button>
-        </div>`;
-    }
+  <div class="buttons">
+    <button id="yes">Evet</button>
+    <button id="no">Hayır</button>
+  </div>
+</div>
 
-    function noPage(btn) {
-      noCount++;
-      vibrate();
-      document.body.classList.add('shake');
-      setTimeout(()=>document.body.classList.remove('shake'),400);
+<script>
+const yes = document.getElementById("yes");
+const no = document.getElementById("no");
+const music = document.getElementById("music");
+const question = document.getElementById("question");
 
-      if (noCount >= 8) {
-        app.innerHTML = `<h1>Başka seçeneğin yok 😌</h1><button class="yes fullscreen-yes" onclick="yesPage()">EVET</button>`;
-        return;
-      }
+let size = 1;
 
-      const scaleYes = 1 + noCount * 0.5;
-      const scaleNo = Math.max(1 - noCount * 0.1, 0.4);
+yes.onclick = () => {
+  music.play();
+  size += 0.4;
+  yes.style.transform = `scale(${size})`;
 
-      app.innerHTML = `
-        <h1>${texts[noCount % texts.length]}</h1>
-        <div class="buttons">
-          <button class="yes" style="transform: scale(${scaleYes})" onclick="yesPage()">Evet</button>
-          <button class="no" style="transform: scale(${scaleNo})" onmouseover="runAway(this)" onclick="noPage(this)">Hayır</button>
-        </div>`;
-    }
+  if (size > 4) {
+    question.innerHTML = "Biliyordum Senam ❤️";
+    document.querySelector(".buttons").remove();
+    startHearts();
+  }
+};
 
-    function runAway(btn) {
-      const x = Math.random() * 200 - 100;
-      const y = Math.random() * 200 - 100;
-      btn.style.transform += ` translate(${x}px, ${y}px)`;
-    }
+no.onmouseover = () => {
+  no.style.left = Math.random() * (window.innerWidth - 100) + "px";
+  no.style.top = Math.random() * (window.innerHeight - 50) + "px";
+};
 
-    function yesPage() {
-      app.innerHTML = `<h1>Biliyordum 💖</h1>`;
-      for (let i = 0; i < 40; i++) createHeart();
-    }
+function startHearts() {
+  setInterval(() => {
+    const heart = document.createElement("div");
+    heart.className = "heart";
+    heart.innerHTML = "❤️";
+    heart.style.left = Math.random() * 100 + "vw";
+    heart.style.bottom = "0px";
+    document.body.appendChild(heart);
 
-    function createHeart() {
-      const heart = document.createElement('div');
-      heart.className = 'heart';
-      heart.innerHTML = '❤';
-      heart.style.left = Math.random() * window.innerWidth + 'px';
-      heart.style.bottom = '0px';
-      heart.style.fontSize = Math.random() * 20 + 20 + 'px';
-      document.body.appendChild(heart);
-      setTimeout(() => heart.remove(), 4000);
-    }
+    setTimeout(() => heart.remove(), 4000);
+  }, 200);
+}
+</script>
 
-    const app = document.getElementById('app');
-    startPage();
-  </script>
 </body>
 </html>
